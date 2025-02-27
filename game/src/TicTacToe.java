@@ -3,8 +3,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
-
+import javax.sound.sampled.*; 
 public class TicTacToe {
     String PLAYER = "X";
     String COMPUTER = "O";
@@ -68,6 +70,7 @@ public class TicTacToe {
                         JButton tile = (JButton) e.getSource();
                         if (Objects.equals(tile.getText(), "") && turn ==0 && !gameOver) {
                             tile.setText(PLAYER);
+                            playSound("./assets/click.wav"); 
                             played++;
                             win(player);
                             if (!gameOver) {
@@ -77,6 +80,7 @@ public class TicTacToe {
                                     Timer timer = new Timer(1000, new ActionListener() {
                                         public void actionPerformed(ActionEvent e) {
                                             play();
+                                            playSound("./assets/click.wav"); 
                                         }
                                     });
                                     timer.setRepeats(false); // Ensure the timer only runs once
@@ -169,9 +173,16 @@ public class TicTacToe {
             gameOver = true;
             if (result.equals("draw")) {
                 textLabel.setText("Tie !");
+                playSound("./assets/lose.wav"); 
             } else {
                 textLabel.setText(winner + "won !");
                 highlightWinningCells(result);
+                if (winner.equals("The computer ")){
+                    playSound("./assets/lose.wav"); 
+                }
+                else{
+                    playSound("./assets/win.wav"); 
+                }
             }
         }
     }
@@ -332,6 +343,18 @@ public class TicTacToe {
             board[0][2].setForeground(Color.green);
             board[1][1].setForeground(Color.green);
             board[2][0].setForeground(Color.green);
+        }
+    }
+
+    public static void playSound(String soundFile) {
+        try {
+            File file = new File(soundFile);
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
         }
     }
 

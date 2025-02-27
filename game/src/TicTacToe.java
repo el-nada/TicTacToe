@@ -59,9 +59,8 @@ public class TicTacToe {
                 JButton tile = new JButton();
                 board[row][col] = tile;
 
-                tile.setBackground(Color.PINK);
                 tile.setForeground(Color.pink);
-                tile.setFont(new Font("Arial", Font.BOLD, 120));
+                tile.setFont(new Font("Arial", Font.BOLD, 1)); 
                 tile.setFocusable(false);
                 bordPanel.add(tile);
 
@@ -70,6 +69,7 @@ public class TicTacToe {
                         JButton tile = (JButton) e.getSource();
                         if (Objects.equals(tile.getText(), "") && turn ==0 && !gameOver) {
                             tile.setText(PLAYER);
+                            startAnimation(tile);
                             playSound("./assets/click.wav"); 
                             played++;
                             win(player);
@@ -153,6 +153,32 @@ public class TicTacToe {
         frame.setVisible(true); // Make the frame visible after all components are added
     }
 
+    private void startAnimation(JButton tile) {
+        int targetFontSize = 120;
+        int delay = 30; 
+        int steps = 10; 
+        Timer animationTimer = new Timer(delay, new ActionListener() {
+            int currentStep = 0;
+            int initialFontSize = 1;
+    
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentStep >= steps) {
+                    ((Timer) e.getSource()).stop(); 
+                    tile.setFont(new Font("Arial", Font.BOLD, targetFontSize)); 
+                    return;
+                }
+                
+                
+                int fontSize = initialFontSize + (currentStep * (targetFontSize - initialFontSize) / steps);
+                tile.setFont(new Font("Arial", Font.BOLD, fontSize));
+                currentStep++;
+            }
+        });
+    
+        animationTimer.start();
+    }
+
     public void refresh(){
         played = 0;
         turn= 0;
@@ -168,7 +194,8 @@ public class TicTacToe {
     }
 
     public void win(String winner) {
-        String result = checkWinner();
+        
+        String result = checkWinner(); 
         if (result != null) {
             gameOver = true;
             if (result.equals("draw")) {
@@ -191,6 +218,7 @@ public class TicTacToe {
         if (played != 0){
             int[] bestMove = findBestMove();
             board[bestMove[0]][bestMove[1]].setText(COMPUTER);
+            startAnimation(board[bestMove[0]][bestMove[1]]); 
             played++;
             win("The computer ");
             turn = 0;

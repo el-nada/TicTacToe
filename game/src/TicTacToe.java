@@ -20,9 +20,12 @@ public class TicTacToe {
     JPanel bordPanel = new JPanel();
     JButton[][] board = new JButton[3][3];
 
+    String gameMode = "computer"; 
     Boolean gameOver = false;
     int played = 0;
     int turn =0;
+    
+    String player = "You "; 
 
     public TicTacToe() {
         frame.setSize(boardWidth, boardHeight);
@@ -66,17 +69,33 @@ public class TicTacToe {
                         if (Objects.equals(tile.getText(), "") && turn ==0 && !gameOver) {
                             tile.setText(PLAYER);
                             played++;
-                            win("You ");
+                            win(player);
                             if (!gameOver) {
                                 turn++;
-                                // Schedule the computer's move after a delay
-                                Timer timer = new Timer(1000, new ActionListener() {
-                                    public void actionPerformed(ActionEvent e) {
-                                        play();
+                                if(gameMode.equals("computer")){
+                                    // Schedule the computer's move after a delay
+                                    Timer timer = new Timer(1000, new ActionListener() {
+                                        public void actionPerformed(ActionEvent e) {
+                                            play();
+                                        }
+                                    });
+                                    timer.setRepeats(false); // Ensure the timer only runs once
+                                    timer.start();
+                                }
+                                else{
+                                    if (player.equals("Player 1 ")){
+                                        player="Player 2 "; 
+                                        textLabel.setText("Player 2's turn "); 
+                                        PLAYER = "O"; 
+
                                     }
-                                });
-                                timer.setRepeats(false); // Ensure the timer only runs once
-                                timer.start();
+                                    else{
+                                        player= "Player 1 "; 
+                                        textLabel.setText("Player 1's turn "); 
+                                        PLAYER = "X"; 
+                                    }
+                                    turn=0; 
+                                }
                             }
                         }
                     }
@@ -89,30 +108,60 @@ public class TicTacToe {
         restart.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                played = 0;
-                turn= 0;
-                gameOver=false;
-                textLabel.setText("Tic Tac Toe");
-                for (int row = 0; row < 3; row++) {
-                    for (int col = 0; col < 3; col++) {
-                        board[row][col].setText("");
-                        board[row][col].setForeground(Color.pink);
-                    }
+                if(gameMode.equals("players")){
+                    textLabel.setText("Player 1's turn ");
                 }
+                else{
+                    textLabel.setText("Tic Tac Toe");
+                }
+                refresh(); 
             }
         });
         JPanel restartPanel = new JPanel();
         restartPanel.setBackground(Color.pink);
         restartPanel.add(restart);
+
+        JButton changeMode = new JButton("Change mode"); 
+        changeMode.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e){
+                if (gameMode!="players"){
+                    gameMode="players"; 
+                    player="Player 1 "; 
+                    textLabel.setText("Player 1's turn "); 
+                }
+                else{
+                    gameMode="computer"; 
+                    player="You "; 
+                    textLabel.setText("Tic Tac Toe"); 
+                }
+                refresh(); 
+            }
+        });
+        changeMode.setBackground(Color.pink);
+        restartPanel.add(changeMode); 
+
         restartPanel.setBorder(new EmptyBorder(0,0, 30, 0));
         frame.add(restartPanel,BorderLayout.SOUTH );
 
+        
         frame.revalidate(); // Refresh the layout
         frame.repaint(); // Repaint the frame
         frame.setVisible(true); // Make the frame visible after all components are added
     }
 
+    public void refresh(){
+        played = 0;
+        turn= 0;
+        gameOver=false;
+        PLAYER = "X"; 
 
+        for (int row = 0; row < 3; row++) {
+            for (int col = 0; col < 3; col++) {
+                board[row][col].setText("");
+                board[row][col].setForeground(Color.pink);
+            }
+        }
+    }
 
     public void win(String winner) {
         String result = checkWinner();
@@ -128,11 +177,13 @@ public class TicTacToe {
     }
 
     public void play() {
-        int[] bestMove = findBestMove();
-        board[bestMove[0]][bestMove[1]].setText(COMPUTER);
-        played++;
-        win("The computer ");
-        turn = 0;
+        if (played != 0){
+            int[] bestMove = findBestMove();
+            board[bestMove[0]][bestMove[1]].setText(COMPUTER);
+            played++;
+            win("The computer ");
+            turn = 0;
+        }
     }
 
     private int[] findBestMove() {

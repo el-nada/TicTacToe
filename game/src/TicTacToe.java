@@ -77,7 +77,7 @@ public class TicTacToe {
                                 turn++;
                                 if(gameMode.equals("computer")){
                                     // Schedule the computer's move after a delay
-                                    Timer timer = new Timer(1000, new ActionListener() {
+                                    Timer timer = new Timer(1500, new ActionListener() {
                                         public void actionPerformed(ActionEvent e) {
                                             play();
                                             playSound("./assets/click.wav"); 
@@ -386,5 +386,7 @@ public class TicTacToe {
         }
     }
 
-
+    public static void main(String[] args) {
+        TicTacToe ticTacToe = new TicTacToe();
+    }
 }
